@@ -438,7 +438,12 @@ public class UdfExecutor {
 
         boolean incompatible = false;
         for (int i = 0; i < methodTypes.length; ++i) {
-          if (getPrimitiveType(methodTypes[i]) != parameterTypes[i].getPrimitiveType()) {
+           // The array parameters with the single parameters are different
+           // e.g. public Text evaluate(Text args) --> the Class is org.apache.hadoop.io.Text
+           // But: public Text evaluate(Text... args) --> the Class is [Lorg.apache.hadoop.io.Text
+           Class<?> methodClass = methodTypes[i].getComponentType() != null ?
+               methodTypes[i].getComponentType() : methodTypes[i];
+           if (getPrimitiveType(methodClass) != parameterTypes[i].getPrimitiveType()) {
             incompatible = true;
             break;
           }
